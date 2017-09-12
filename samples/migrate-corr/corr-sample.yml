@@ -1,0 +1,56 @@
+system:
+  model: System76
+  architecture: x86_64
+  cpu: Intel CORE i7
+  gpu: NVIDIA GT9600
+  os: ubuntu 16.04
+execution:
+  parameters:
+    size: 10
+    threshold: 2.87
+  cmd_line: python simulationXY23.py
+inputs:
+  - path: data/samples.csv
+    metadata:
+      encoding: utf-8
+      mimetype: txt/csv
+      size: 2500
+  - path: data/config.json
+    metadata:
+      encoding: utf-8
+      mimetype: txt/json
+      size: 1367
+  - path: data/optimization.txt
+    metadata:
+      encoding: utf-8
+      mimetype: txt/plain
+      size: 1209
+outputs:
+  - path: Data/log.txt
+    metadata:
+      encoding: utf-8
+      mimetype: txt/plain
+      size: 4765
+  - path: Data/components.json
+    metadata:
+      encoding: utf-8
+      mimetype: txt/json
+      size: 1300
+  - path: Data/population.json
+    metadata:
+      encoding: utf-8
+      mimetype: txt/json
+      size: 3720
+dependencies:
+  - name: numpy
+    version: 1.2
+    language: python
+    url: http://www.numpy.org/
+  - name: pandas
+    version: 0.21
+    language: python
+    url: http://pandas.pydata.org/
+  - name: scikit-learn
+    version: 0.19
+    language: python
+    url: http://scikit-learn.org/stable/
