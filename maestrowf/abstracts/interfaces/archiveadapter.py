@@ -8,7 +8,7 @@ import stat
 
 LOGGER = logging.getLogger(__name__)
 
-@six.add_metaclass(ABCMeta):
+@six.add_metaclass(ABCMeta)
 class ArchiveAdapter(object):
 
     def submit_data(self):
