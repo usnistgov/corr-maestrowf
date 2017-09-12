@@ -8,8 +8,6 @@ Test reading a sample Maestorwf file
 
 >>> data_path = os.path.join(get_path(), 'lulesh_sample1.yaml')
 >>> test_path = os.path.join(get_path(), 'corr-test.yaml')
->>> test = read_yaml(test_path)
->>> data = read_yaml(data_path)
 >>> assert mapping(read_yaml(data_path)) == read_yaml(test_path)
 
 """
