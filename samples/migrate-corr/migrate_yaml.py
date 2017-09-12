@@ -15,15 +15,68 @@ Test reading a sample Maestorwf file
 import os
 
 # pylint: disable=redefined-builtin
-from toolz.curried import pipe, get, curry
+from toolz.curried import pipe, get, curry, map, do, filter
 import yaml
+import glob
+import mimetypes
 
 
-def mapping(data):
+def file_metadata(path):
+    """Generate metadata for one file
+
+    >>> from click.testing import CliRunner
+    >>> with CliRunner().isolated_filesystem() as dir_:
+    ...     test_file = os.path.join(dir_, 'hello.json')
+    ...     with open(test_file, 'w') as f:
+    ...         _ = f.write('{"hello": "hello"}')
+    ...     metadata = file_metadata(test_file)
+    >>> assert('hello.json' in metadata['path'])
+    >>> assert metadata['metadata'] == {'encoding': 'utf-8',
+    ...                                 'mimetype': 'application/json',
+    ...                                 'size': 18}
+
+    Args:
+      path: the path to the file
+
+    Retuns:
+      dictionary of metadata
+
+    """
+    return {
+        'path': os.path.relpath(path),
+        'metadata': {
+            'encoding': 'utf-8',
+            'mimetype': mimetypes.guess_type(path)[0],
+            'size': os.path.getsize(path)
+        }
+    }
+
+
+def outputs(path):
+    """Generate outputs metadata based on path
+
+    Args:
+      path: the path to the output data
+
+    Returns:
+      a list of file metadata
+
+    """
+    return pipe(
+        os.path.join(path, '**'),
+        lambda x: glob.glob(x, recursive=True),
+        filter(os.path.isfile),
+        map(file_metadata),
+        list
+    )
+
+@curry
+def mapping(output_path, data):
     """Map from Maestrowf data to CoRR data
 
     Args:
       data: the Maestrowf data
+      output_path: the path to the output data
 
     Returns
       the CoRR data
@@ -33,7 +86,7 @@ def mapping(data):
             'parameters': data['global.parameters'],
             'cmd_line': data['study'][-1]['run']['cmd']},
         'system': {'env': data['env']},
-        'outputs': [],
+        'outputs': outputs(output_path),
         'inputs': [],
         'dependencies': []
     }
@@ -81,7 +134,7 @@ def write_yaml_data(filepath, data):
     return (filepath, data)
 
 
-def main(file_in, file_out):
+def main(file_in, file_out, output_path):
     """Read in a Maestrowf YAML, translate and write a CoRR YAML
 
     Args:
@@ -93,7 +146,7 @@ def main(file_in, file_out):
     return pipe(
         file_in,
         read_yaml,
-        mapping,
+        mapping(output_path),
         write_yaml_data(file_out)
     )
 
@@ -101,5 +154,6 @@ def main(file_in, file_out):
 if __name__ == '__main__':
     main(
         os.path.join(get_path(), 'lulesh_sample1.yaml'),
-        'corr-out.yaml'
+        'corr-out.yaml',
+        'sample_output'
     )
