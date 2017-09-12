@@ -32,7 +32,10 @@ def mapping(data):
         'execution': {
             'parameters': data['global.parameters'],
             'cmd_line': data['study'][-1]['run']['cmd']},
-        'system': {'env': data['env']}
+        'system': {'env': data['env']},
+        'outputs': [],
+        'inputs': [],
+        'dependencies': []
     }
 
 

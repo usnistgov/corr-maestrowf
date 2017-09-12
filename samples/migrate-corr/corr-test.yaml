@@ -1,3 +1,4 @@
+dependencies: []
 execution:
   cmd_line: '../lulesh/lulesh2.0 -s $(SIZE) -i $(ITERATIONS) -p > $(outfile)
 
@@ -27,6 +28,8 @@ execution:
       - 30
       - 30
       - 30
+inputs: []
+outputs: []
 system:
   env:
     labels:
