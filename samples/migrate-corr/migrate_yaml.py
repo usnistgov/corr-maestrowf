@@ -1,56 +1,72 @@
-"""Script to migrate the meta.yaml files
+"""Script to migrate a Maestrowf YAML file to a CoRR YAML file
 
-Script to migrate the meta.yaml files when the schema changes. Edit
-the callback function at the bottom of the file.
+To run the tests:
+
+    $ py.test --doctest-modules migrate_yaml.py
+
+Test reading a sample Maestorwf file
+
+>>> data_path = os.path.join(get_path(), 'lulesh_sample1.yaml')
+>>> test_path = os.path.join(get_path(), 'corr-test.yaml')
+>>> test = read_yaml(test_path)
+>>> data = read_yaml(data_path)
+>>> assert mapping(read_yaml(data_path)) == read_yaml(test_path)
 
 """
 
 import os
-import glob
 
 # pylint: disable=redefined-builtin
-from toolz.curried import pipe, valmap, itemmap, do, map
+from toolz.curried import pipe, get, curry
 import yaml
 
-from simulations import get_path, read_yaml
 
-
-def migrate(func):
-    """Migrate the meta.yaml files using a callback function.
-
-    This function reads and writes to the meta.yaml files.
+def mapping(data):
+    """Map from Maestrowf data to CoRR data
 
     Args:
-      func: the callback function which takes the YAML dictionary and
-        returns a new dictionary
+      data: the Maestrowf data
+
+    Returns
+      the CoRR data
+    """
+    return {
+        'execution': {
+            'parameters': data['global.parameters'],
+            'cmd_line': data['study'][-1]['run']['cmd']},
+        'system': {'env': data['env']}
+    }
+
+
+def get_path():
+    """Return the local file path for this file.
 
     Returns:
-      a dictionary with file names as keys and values as dictionaries
-      of the updated YAML data.
+      the filepath
     """
     return pipe(
-        get_yaml_data(),
-        dict,
-        valmap(func),
-        do(itemmap(lambda x: write_yaml_data(*x)))
+        __file__,
+        os.path.realpath,
+        os.path.split,
+        get(0)
     )
 
 
-def get_yaml_data():
-    """Read the meta.yaml files
+def read_yaml(filepath):
+    """Read a YAML file
+
+    Args:
+      filepath: the path to the YAML file
 
     Returns:
-      a dictionary with keys as the file paths and values as
-      dictionaries of YAML data
+      returns a dictionary
     """
-    return pipe(
-        os.path.join(get_path(), 'simulations/*/meta.y*ml'),
-        glob.glob,
-        sorted,
-        map(lambda path_: (path_, read_yaml(path_)))
-    )
+    with open(filepath) as stream:
+        data = yaml.safe_load(stream)
+    return data
 
 
+@curry
 def write_yaml_data(filepath, data):
     """Write data to YAML file
 
@@ -64,12 +80,25 @@ def write_yaml_data(filepath, data):
     return (filepath, data)
 
 
-if __name__ == '__main__':
-    def migrate_f(data):
-        """Migrate function for github_id
-        """
-        if data["metadata"]["author"] == "PC. Simon":
-            data["metadata"]["github_id"] = "simopier"
-        return data
+def main(file_in, file_out):
+    """Read in a Maestrowf YAML, translate and write a CoRR YAML
 
-    migrate(migrate_f)
+    Args:
+      file_in: Maestrowf YAML path
+
+    Returns:
+      CoRR YAML path
+    """
+    return pipe(
+        file_in,
+        read_yaml,
+        mapping,
+        write_yaml_data(file_out)
+    )
+
+
+if __name__ == '__main__':
+    main(
+        os.path.join(get_path(), 'lulesh_sample1.yaml'),
+        'corr-out.yaml'
+    )
