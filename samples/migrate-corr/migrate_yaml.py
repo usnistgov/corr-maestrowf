@@ -15,10 +15,11 @@ Test reading a sample Maestorwf file
 import os
 
 # pylint: disable=redefined-builtin
-from toolz.curried import pipe, get, curry, map, do, filter
+from toolz.curried import pipe, get, curry, map, filter, tail
 import yaml
 import glob
 import mimetypes
+import click
 
 
 def file_metadata(path):
@@ -38,9 +39,8 @@ def file_metadata(path):
     Args:
       path: the path to the file
 
-    Retuns:
+    Returns:
       dictionary of metadata
-
     """
     return {
         'path': os.path.relpath(path),
@@ -50,6 +50,23 @@ def file_metadata(path):
             'size': os.path.getsize(path)
         }
     }
+
+
+def glob_all_files(path):
+    """Find all files
+
+    Args:
+      path: the path to search for files
+
+    Returns:
+      a list of files
+    """
+    return pipe(
+        os.path.join(path, '**'),
+        lambda x: glob.glob(x, recursive=True),
+        filter(os.path.isfile),
+    )
+
 
 
 def outputs(path):
@@ -63,9 +80,8 @@ def outputs(path):
 
     """
     return pipe(
-        os.path.join(path, '**'),
-        lambda x: glob.glob(x, recursive=True),
-        filter(os.path.isfile),
+        path,
+        glob_all_files,
         map(file_metadata),
         list
     )
@@ -134,26 +150,44 @@ def write_yaml_data(filepath, data):
     return (filepath, data)
 
 
-def main(file_in, file_out, output_path):
-    """Read in a Maestrowf YAML, translate and write a CoRR YAML
+def find_yaml_file(path):
+    """Find a YAML file in the path
 
     Args:
-      file_in: Maestrowf YAML path
+      path: find a YAML file on the path
 
     Returns:
-      CoRR YAML path
+      the path to the YAML file
     """
     return pipe(
-        file_in,
+        path,
+        glob_all_files,
+        filter(lambda x: tail(5, x) == '.yaml'),
+        list,
+        get(0)
+    )
+
+@click.command()
+@click.option('--corr-output',
+              'corr_output',
+              required=True,
+              default='corr.yaml',
+              help="Set the CoRR YAML file")
+@click.option('--output-path',
+              'output_path',
+              required=True,
+              help="Set the outputs capture path")
+def main(corr_output, output_path):
+    """Read in a Maestrowf YAML, translate and write the CoRR YAML
+    """
+    return pipe(
+        output_path,
+        find_yaml_file,
         read_yaml,
         mapping(output_path),
-        write_yaml_data(file_out)
+        write_yaml_data(corr_output)
     )
 
 
 if __name__ == '__main__':
-    main(
-        os.path.join(get_path(), 'lulesh_sample1.yaml'),
-        'corr-out.yaml',
-        'sample_output'
-    )
+    main()
