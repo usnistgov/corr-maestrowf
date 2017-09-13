@@ -124,7 +124,7 @@ class HttpCoRRStore:
         headers = {'Content-Type': 'application/json'}
         response, content = self.client.request(url, 'POST', json.dumps(content), headers=headers)
         if response.status != 200:
-            print "%d\n%s" % (response.status, content)
+            print("%d\n%s" % (response.status, content))
             return None
         else:
             project_payload = json.loads(content)
@@ -137,15 +137,16 @@ class HttpCoRRStore:
     def get_project(self, project_name):
         project = None
         url = "%sprojects" % (self.server_url)
+
         response, content = self._get(url)
         if response.status != 200:
-            print "Error in accessing %s\n%s: %s" % (url, response.status, content)
+            print("Error in accessing %s\n%s: %s" % (url, response.status, content))
             return None
         else:
             projects_payload = json.loads(content)
             code = projects_payload['code']
             if code != 200:
-                print "%d\n%s" % (response.status, content)
+                print("%d\n%s" % (response.status, content))
                 return None
             else:
                 for p in projects_payload['content']['projects']:
@@ -162,13 +163,13 @@ class HttpCoRRStore:
         response, content = self._get(url)
         project = None
         if response.status != 200:
-            print "Error in accessing %s\n%s: %s" % (url, response.status, content)
+            print("Error in accessing %s\n%s: %s" % (url, response.status, content))
             return None
         else:
             project_payload = json.loads(content)
             code = project_payload['code']
             if code != 200:
-                print "%d\n%s" % (response.status, content)
+                print("%d\n%s" % (response.status, content))
                 return None
             else:
                 for p in project_payload['content']['projects']:
@@ -185,13 +186,13 @@ class HttpCoRRStore:
         response, content = self.client.request(url, 'POST', json.dumps(_content),
                                                 headers=headers)
         if response.status != 200:
-            print "%d\n%s" % (response.status, content)
+            print("%d\n%s" % (response.status, content))
             return None
         else:
             record_payload = json.loads(content)
             code = record_payload['code']
             if code != 201:
-                print "%d\n%s" % (response.status, content)
+                print("%d\n%s" % (response.status, content))
                 return None
             else:
                 # Record Meta-Data as JSON.
@@ -205,13 +206,13 @@ class HttpCoRRStore:
         response, content = self.client.request(url, 'POST', json.dumps(metadata),
                                                 headers=headers)
         if response.status != 200:
-            print "%d\n%s" % (response.status, content)
+            print("%d\n%s" % (response.status, content))
             return None
         else:
             record_payload = json.loads(content)
             code = record_payload['code']
             if code != 201:
-                print "%d\n%s" % (response.status, content)
+                print("%d\n%s" % (response.status, content))
                 return None
             else:
                 return record_payload['content']
@@ -220,7 +221,7 @@ if __name__ == '__main__':
     yaml_content = None
     with open("sample.yml", 'r') as yml_file:
         yaml_content = yaml.load(yml_file.read())
-    print yaml_content
+    print(yaml_content)
     # Setup the contract instance.
     corrContract = HttpCoRRStore()
 
@@ -231,11 +232,11 @@ if __name__ == '__main__':
 
     # Create a project
     project_payload = corrContract.create_project(project_name=project_data['name'], long_name='', description=project_data['description'])
-    print json.dumps(project_payload, sort_keys=True, indent=4, separators=(',', ': '))
+    print(json.dumps(project_payload, sort_keys=True, indent=4, separators=(',', ': ')))
 
     # Get a project and Create if it does not exist.
     project_payload = corrContract.get_project("Test-From-Contract")
-    print json.dumps(project_payload, sort_keys=True, indent=4, separators=(',', ': '))
+    print(json.dumps(project_payload, sort_keys=True, indent=4, separators=(',', ': ')))
 
     # Create 5 records
     records = []
@@ -243,7 +244,7 @@ if __name__ == '__main__':
         record = yaml_content
         records.append(corrContract.create_record(project_name=project_data['name'], record=record))
 
-    print json.dumps(records, sort_keys=True, indent=4, separators=(',', ': '))
+    print(json.dumps(records, sort_keys=True, indent=4, separators=(',', ': ')))
 
     # # Update 5 records metadata
     # for i in range(5):

@@ -19,11 +19,13 @@ Test reading a sample Maestorwf file
 import os
 
 # pylint: disable=redefined-builtin
-from toolz.curried import pipe, get, curry, map, filter, tail
+from toolz.curried import pipe, get, curry, map, filter, tail, do
 import yaml
 import glob
 import mimetypes
 import click
+import sys
+from logic import HttpCoRRStore
 
 
 def file_metadata(path):
@@ -56,11 +58,10 @@ def file_metadata(path):
     }
 
 
-def glob_all_files_27(path):
+def glob_all_files_2(path):
     """Find all files in Py 2.7
     """
     import fnmatch
-    import os
 
     matches = []
     for root, dirnames, filenames in os.walk(path):
@@ -70,7 +71,7 @@ def glob_all_files_27(path):
     return matches
 
 
-def glob_all_files(path):
+def glob_all_files_3(path):
     """Find all files
 
     Args:
@@ -86,6 +87,13 @@ def glob_all_files(path):
     )
 
 
+def glob_all_files(path):
+    if sys.version_info[0] < 3:
+        return glob_all_files_2(path)
+    else:
+        return glob_all_files_3(path)
+
+
 def outputs(path):
     """Generate outputs metadata based on path
 
@@ -99,7 +107,7 @@ def outputs(path):
 
     return pipe(
         path,
-        glob_all_files_27,
+        glob_all_files,
         map(file_metadata),
         list
     )
@@ -180,11 +188,20 @@ def find_yaml_file(path):
     """
     return pipe(
         path,
-        glob_all_files_27,
+        glob_all_files,
         filter(lambda x: tail(5, x) == '.yaml'),
         list,
         get(0)
     )
+
+
+@curry
+def upload(config, project_name, data):
+    store = HttpCoRRStore(server_url=config)
+    # store.get_project(project_name=project_name)
+    store.create_record(project_name=project_name,
+                        record=data)
+
 
 @click.command()
 @click.option('--corr-output',
@@ -195,8 +212,16 @@ def find_yaml_file(path):
 @click.option('--output-path',
               'output_path',
               required=True,
-              help="Set the outputs capture path")
-def main(corr_output, output_path):
+              help="Path the Maestro outputs")
+@click.option('--config-path',
+              'config_path',
+              required=True,
+              help="CoRR config file path")
+@click.option('--project-name',
+              'project_name',
+              required=True,
+              help="Set the project name")
+def main(corr_output, output_path, config_path, project_name):
     """Read in a Maestrowf YAML, translate and write the CoRR YAML
     """
     return pipe(
@@ -204,11 +229,9 @@ def main(corr_output, output_path):
         find_yaml_file,
         read_yaml,
         mapping(output_path),
+        do(upload(config_path, project_name)),
         write_yaml_data(corr_output)
     )
-
-
-
 
 
 if __name__ == '__main__':
