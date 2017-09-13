@@ -4,12 +4,14 @@ description:
 
 env:
     variables:
+        PROJECT_NAME: lulesh_sample1
         OUTPUT_PATH: ./sample_output/lulesh
         LULESH_URL: https://codesign.llnl.gov/lulesh/lulesh2.0.3.tgz
 
     labels:
         outfile: $(SIZE.label).$(ITERATIONS.label).log
         CORR_SCRIPT: $(SPECROOT)/corr-sync.py
+        CORR_CONFIG: $(SPECROOT)/config.json
 
 study:
     - name: get-lulesh
@@ -45,7 +47,7 @@ study:
     - name: corr
       description: Run the script to format the MaestroWF spec to CoRR input.
       run:
-        cmd : python $(CORR_SCRIPT) --output-path $(OUTPUT_PATH)
+        cmd : python $(CORR_SCRIPT) --output-path $(OUTPUT_PATH) --config-path $(CORR_CONFIG) --project-name $(PROJECT_NAME)
         depends: [run-lulesh]
 
 global.parameters:
