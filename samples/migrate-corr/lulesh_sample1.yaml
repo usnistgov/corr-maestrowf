@@ -9,6 +9,7 @@ env:
 
     labels:
         outfile: $(SIZE.label).$(ITERATIONS.label).log
+        CORR_SCRIPT: $(SPECROOT)/corr-sync.py
 
 study:
     - name: get-lulesh
@@ -40,6 +41,12 @@ study:
           cmd: |
             ../lulesh/lulesh2.0 -s $(SIZE) -i $(ITERATIONS) -p > $(outfile)
           depends: [make-lulesh]
+
+    - name: corr
+      description: Run the script to format the MaestroWF spec to CoRR input.
+      run:
+        cmd : python $(CORR_SCRIPT) --output-path $(OUTPUT_PATH)
+        depends: [run-lulesh]
 
 global.parameters:
     SIZE:
