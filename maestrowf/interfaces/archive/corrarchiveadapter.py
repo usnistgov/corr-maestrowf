@@ -6,7 +6,7 @@ Note: This is a prototype.
 """
 import os
 import logging
-import httplib2
+
 import json
 
 from maestrowf.abstracts.interfaces.httpadapter import HttpAdapter
@@ -20,23 +20,9 @@ class CorrHttpAdapter(HttpAdapter):
     is based on:
     https://github.com/usnistgov/corr-sumatra/blob/corr-integrate/sumatra/recordstore/http_store.py#L231
     """
-    def __init__(self, server_url, disable_ssl_certificate_validation=True):
-        if 'http' in server_url:
-            self.server_url = server_url
-        else:
-
-            # TODO Move these variables to the spec
-            #scope = config.get('default', {})
-            #api = scope.get('api',{})
-            host = "http://10.0.1.119"
-            port = "5100"
-            key = "3dc30596c134871dbc646a338c3a82b2dfdbbd310c80b803fec74ae8a557e300"
-            path = "/corr/api/v0.1"
-            token =  "032356f8d58ae905b2128107d84726d7991cc1d27338d129fc55a2ed58177c1a"
-            self.server_url = "{0}:{1}{2}/private/{3}/{4}/".format(host, port,
-                path, key, token)
-        self.client = httplib2.Http('.cache',
-            disable_ssl_certificate_validation=disable_ssl_certificate_validation)
+    def __init__(self, config_path, disable_ssl_certificate_validation=True):
+        super(CorrHttpAdapter, self).__init__(disable_ssl_certificate_validation)
+        self.server_url = self.load_config(config_path)
 
     def create_project(self, spec_path):
         """
@@ -158,34 +144,24 @@ class CorrHttpAdapter(HttpAdapter):
         record_payload = json.loads(content)
         return response, content
 
-    def _check_response_content(cls, url, response, content, response_code=200,
-                                content_code=200):
+    def load_config(self, config_path):
         """
-        Used to check if the response code and the content code match the given
-        codes.
+        Loads the json config file for the CoRR archive adapter.
 
-        :param url: The URL used for the HTTP request.
-        :param response: An HTTP Response to check.
-        :param content: An HTTP content to check.
-        :param response_code: The response code to check response against.
-            Default 200.
-        :param content_code: The content code to check content against. Default
-            200.
-        :raises StandardError: If the response status does not match the
-            inputed response_code or if the content code does not match the
-            inputed content_code.
+        :param config_path: The path to the json configuration file.
+        :returns: The configured URL to use for CoRR.
         """
-        LOGGER.debug('Checking response and content codes.')
-        if response.status != response_code:
-            msg = ('URL <{}>\nProvided bad response status: {}\nContent: {}'\
-                ''.format(url, response.status, content))
-            LOGGER.exception(msg)
-            raise ValueError(msg)
-        else:
-            code = json.loads(content)['code']
-            if code != content_code:
-                msg = ('URL <{}>\nProvided bad content code status: {}\n'\
-                    'Expected content code: {}\nContent: {}'.format(url, code,
-                        content_code, content))
-                LOGGER.exception(msg)
-                raise ValueError(msg)
+        LOGGER.debug('Loading config file: {}'.format(config_path))
+        config = utils.read_json(config_path)
+
+        scope = config.get('default', {})
+        api = scope.get('api',{})
+        host = api.get('host','')
+        port = api.get('port', 80)
+        key = api.get('key', '')
+        path = api.get('path', '')
+        token = scope.get('app', '')
+        url ='{0}:{1}{2}/private/{3}/{4}/'\
+            ''.format(host, port, path, key, token)
+
+        return url
