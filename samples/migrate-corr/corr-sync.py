@@ -1,5 +1,9 @@
 """Script to migrate a Maestrowf YAML file to a CoRR YAML file
 
+To run use:
+
+    $ python corr-sync.py --corr-output=corr.yaml --output-path=demo/sample_output
+
 To run the tests:
 
     $ py.test --doctest-modules migrate_yaml.py
@@ -52,6 +56,20 @@ def file_metadata(path):
     }
 
 
+def glob_all_files_27(path):
+    """Find all files in Py 2.7
+    """
+    import fnmatch
+    import os
+
+    matches = []
+    for root, dirnames, filenames in os.walk(path):
+        for filename in fnmatch.filter(filenames, '*'):
+            matches.append(os.path.join(root, filename))
+
+    return matches
+
+
 def glob_all_files(path):
     """Find all files
 
@@ -68,7 +86,6 @@ def glob_all_files(path):
     )
 
 
-
 def outputs(path):
     """Generate outputs metadata based on path
 
@@ -79,12 +96,14 @@ def outputs(path):
       a list of file metadata
 
     """
+
     return pipe(
         path,
-        glob_all_files,
+        glob_all_files_27,
         map(file_metadata),
         list
     )
+
 
 @curry
 def mapping(output_path, data):
@@ -161,7 +180,7 @@ def find_yaml_file(path):
     """
     return pipe(
         path,
-        glob_all_files,
+        glob_all_files_27,
         filter(lambda x: tail(5, x) == '.yaml'),
         list,
         get(0)
@@ -189,5 +208,9 @@ def main(corr_output, output_path):
     )
 
 
+
+
+
 if __name__ == '__main__':
+    # data = main()
     main()
