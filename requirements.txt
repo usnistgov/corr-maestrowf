@@ -11,3 +11,5 @@ pydocstyle
 pylint
 tox
 httplib2
+toolz
+click

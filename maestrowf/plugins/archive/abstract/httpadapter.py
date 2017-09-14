@@ -78,3 +78,9 @@ class HttpAdapter(object):
                         content_code, content))
                 LOGGER.exception(msg)
                 raise ValueError(msg)
+
+    def _type(self):
+        """
+        Return the type derived class of HttpAdapter.
+        """
+        return self.__class__.__name__

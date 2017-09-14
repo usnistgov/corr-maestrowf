@@ -13,6 +13,7 @@ setup(name='maestrowf',
         'console_scripts': [
             'maestro = maestrowf.maestro:main',
             'conductor = maestrowf.conductor:main',
+            'archive = maestrowf.plugins.archive.launcher:main'
         ]
       },
       install_requires=[
