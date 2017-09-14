@@ -78,3 +78,6 @@ class HttpAdapter(object):
                         content_code, content))
                 LOGGER.exception(msg)
                 raise ValueError(msg)
+
+    def _type(self):
+        return self.__class__.__name__

@@ -12,3 +12,6 @@ docs/html/
 
 # Testing output
 .tox/
+
+# Archive configs
+/maestrowf/plugins/archive/configs

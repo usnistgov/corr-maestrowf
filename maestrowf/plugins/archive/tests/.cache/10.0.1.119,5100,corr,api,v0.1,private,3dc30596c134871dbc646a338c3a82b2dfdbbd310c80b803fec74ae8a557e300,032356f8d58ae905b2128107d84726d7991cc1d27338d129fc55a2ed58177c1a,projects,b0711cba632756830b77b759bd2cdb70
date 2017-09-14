@@ -1,0 +1,52 @@
+status: 200
+content-length: 1462
+access-control-allow-headers: Authorization, Content-Type,
+ Access-Control-Allow-Credentials
+content-location: http://10.0.1.119:5100/corr/api/v0.1/private/3dc30596c134871dbc646a338c3a82b2dfdbbd310c80b803fec74ae8a557e300/032356f8d58ae905b2128107d84726d7991cc1d27338d129fc55a2ed58177c1a/projects
+access-control-max-age: 21600
+server: Werkzeug/0.11.15 Python/3.4.5
+date: Wed, 13 Sep 2017 17:26:33 GMT
+access-control-allow-origin: *
+access-control-allow-methods: DELETE, POST, PUT, GET, UPDATE, HEAD
+content-type: application/json
+
+{
+    "code": 200,
+    "content": {
+        "projects": [
+            {
+                "access": "private",
+                "comments": [],
+                "created": "2017-09-13 15:05:39.137486",
+                "description": "A sample LULESH study that downloads, builds, and runs a parameter study of varying problem sizes and iterations.",
+                "diffs": 0,
+                "duration": "few secondes ago.",
+                "environments": 0,
+                "extend": {},
+                "goals": "",
+                "history": [],
+                "id": "59b9494337c995000bf56fae",
+                "logo": "59b9494337c995000bf56fad",
+                "name": "lulesh_sample1",
+                "owner": {
+                    "auth": "approved",
+                    "created": "2017-09-12 15:18:57.699524",
+                    "email": "contract2@demo.corr",
+                    "group": "user",
+                    "id": "59b7fae11d49b3000b1c3a3d",
+                    "max-quota": 1.0,
+                    "total_apps": 0,
+                    "total_duration": "0:00:00.134406",
+                    "total_projects": 1,
+                    "total_records": 17
+                },
+                "records": 17,
+                "resources": [],
+                "tags": "",
+                "updated": "2017-09-13 17:26:32.910980"
+            }
+        ],
+        "total_projects": 1
+    },
+    "title": "User 59b7fae11d49b3000b1c3a3d Projects list"
+}

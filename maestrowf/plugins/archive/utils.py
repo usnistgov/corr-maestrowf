@@ -39,6 +39,7 @@ def get_file_name(path):
     :param filepath: The filepath to get the name of.
     :returns: The file name.
     """
+    LOGGER.debug('Getting file name of path: {}'.format(path))
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
 
@@ -48,4 +49,5 @@ def get_file_path(file_name):
 
     :returns: The filepath.
     """
+    LOGGER.debug('Getting file path of file: {}'.format(file_name))
     return os.path.abspath(file_name)

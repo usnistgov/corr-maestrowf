@@ -1,0 +1,44 @@
+dependencies: []
+execution:
+  cmd_line: '../lulesh/lulesh2.0 -s $(SIZE) -i $(ITERATIONS) -p > $(outfile)
+
+    '
+  parameters:
+    ITERATIONS:
+      label: ITER.%%
+      values:
+      - 10
+      - 20
+      - 30
+      - 10
+      - 20
+      - 30
+      - 10
+      - 20
+      - 30
+    SIZE:
+      label: SIZE.%%
+      values:
+      - 10
+      - 10
+      - 10
+      - 20
+      - 20
+      - 20
+      - 30
+      - 30
+      - 30
+inputs: []
+outputs:
+- metadata:
+    encoding: utf-8
+    mimetype: null
+    size: 9109
+  path: sample_output/lulesh/lulesh_sample1_20170912-125200/lulesh_sample1.pkl
+system:
+  env:
+    labels:
+      outfile: $(SIZE.label).$(ITERATIONS.label).log
+    variables:
+      LULESH_URL: https://codesign.llnl.gov/lulesh/lulesh2.0.3.tgz
+      OUTPUT_PATH: ./sample_output/lulesh

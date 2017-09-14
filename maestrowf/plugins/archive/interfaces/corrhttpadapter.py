@@ -1,6 +1,7 @@
 """
-The CoRR archive adapter transforms the Maestro workflow specification to the
-CoRR data schema to archive Maestro runs.
+The CoRR http adapter serves as a connection to CoRR and provides a glossary
+of functions that can be used to interact with CoRR. These includes things like
+creating new projects and records.
 
 Note: This is a prototype.
 """
@@ -9,8 +10,8 @@ import logging
 
 import json
 
-from maestrowf.abstracts.interfaces.httpadapter import HttpAdapter
-from maestrowf.interfaces.archive import utils
+from maestrowf.plugins.archive.abstract.httpadapter import HttpAdapter
+from maestrowf.plugins.archive import utils
 
 LOGGER = logging.getLogger(__name__)
 
@@ -104,6 +105,7 @@ class CorrHttpAdapter(HttpAdapter):
 
         :param project_name: The project name to use for the record.
         :param corr_spec_path: The path to the CoRR spec to store.
+        :raises ValueError: If given an incorrect project name.
         :returns: A tuple containing the HTTP response and content.
         """
         LOGGER.debug('Inserting new record into project: {}\n'\
@@ -111,11 +113,9 @@ class CorrHttpAdapter(HttpAdapter):
         project = None
         project = self.has_project(project_name=project_name)
         if not project:
-            LOGGER.debug('Project <{}> does not exist. Creating new project.'\
-                ''.format(project_name))
-            response, content = self.create_project(project_name)
-            project = json.loads(content)['content']
-
+            msg = 'Project <{}> does not exist. Cannot add record.'
+            LOGGER.error(msg)
+            raise ValueError(msg)
         # Create the record
         record = utils.read_yaml(corr_spec_path)
         url = '{}project/record/create/{}'.format(self.server_url,
@@ -163,5 +163,4 @@ class CorrHttpAdapter(HttpAdapter):
         token = scope.get('app', '')
         url ='{0}:{1}{2}/private/{3}/{4}/'\
             ''.format(host, port, path, key, token)
-
         return url
