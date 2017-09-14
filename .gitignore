@@ -16,3 +16,10 @@ docs/html/
 # Archive configs
 /maestrowf/plugins/archive/configs
 *.log
+
+# Notebooks
+.ipynb_checkpoints/
+
+# CoRR stuff
+.cache/
+*-archive.yaml
