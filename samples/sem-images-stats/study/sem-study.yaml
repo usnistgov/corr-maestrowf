@@ -1,0 +1,67 @@
+description:
+    name: SEM-Images-Stats
+    description: The goal of this work is to analyze images of steel from SEM. The initial data set consists of 9 images.
+
+env:
+    variables:
+        OUTPUT_PATH: ./sample_output/sem-images-stats
+        SEM_IMG_STATS_URL: https://github.com/wd15/sem-image-stats
+        PROJECT_PATH: /Users/fyc/Desktop/Hackaton-09-11-2017/Demo/corr-maestrowf/samples/sem-images-stats
+        CODE_PATH: $(PROJECT_PATH)/study/code
+        DATA_PATH: $(PROJECT_PATH)/study/data
+    labels:
+        outfile: sem-images-stats.log
+study:
+    - name: run-threshold
+      description: Do some thresholding.
+      run:
+          cmd: |
+            python $(CODE_PATH)/threshold.py $(DATA_PATH)/$(DATA).tif
+          depends: []
+    - name: run-min_size
+      description: Do some min_size.
+      run:
+          cmd: |
+            python $(CODE_PATH)/min_size.py $(DATA)-threshold.data
+          depends: [run-threshold]
+    - name: run-clean
+      description: Do some clean.
+      run:
+          cmd: |
+            python $(CODE_PATH)/clean.py $(DATA)-min_size.data
+          depends: [run-min_size]
+    - name: run-reveal
+      description: Do some reveal.
+      run:
+          cmd: |
+            python $(CODE_PATH)/reveal.py $(DATA)-clean.data
+          depends: [run-clean]
+    - name: run-pearlite
+      description: Do some ferrite.
+      run:
+          cmd: |
+            python $(CODE_PATH)/pearlite.py $(DATA)-reveal.data
+          depends: [run-reveal]
+    - name: run-ferrite
+      description: Do some ferrite.
+      run:
+          cmd: |
+            python $(CODE_PATH)/ferrite.py $(DATA)-pearlite.data
+          depends: [run-pearlite]
+    - name: run-cemmentite
+      description: Do some cemmentite.
+      run:
+          cmd: |
+            python $(CODE_PATH)/cemmentite.py $(DATA)-ferrite.data
+          depends: [run-ferrite]
+    - name: run-save
+      description: Do some save.
+      run:
+          cmd: |
+            python $(CODE_PATH)/save.py $(DATA)-cemmentite.data
+          depends: [run-cemmentite]
+
+global.parameters:
+    DATA:
+        values  : ["1045_Steel_Nital-etch-1", "1045_Steel_Nital-etch-2", "1045_Steel_Nital-etch-3", "1045_Steel_Nital-etch-4", "1045_Steel_Nital-etch-5", "1045_Steel_Nital-etch-6", "1045_Steel_Nital-etch-7", "20150911_1045_Nital_etch-1", "20150911_1045_Nital_etch-2"]
+        label   : "%%"
