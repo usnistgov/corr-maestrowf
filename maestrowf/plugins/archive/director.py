@@ -1,7 +1,4 @@
-"""
-The archive director directs the Maestro Workflow to the specified archive
-adapter and calls the necessary adapter functions to archive the workflow.
-"""
+
 import logging
 import os
 import yaml
@@ -15,19 +12,42 @@ ADAPTERS = {'corrhttp': CorrHttpAdapter}
 LOGGER = logging.getLogger(__name__)
 
 class Director(object):
-
+    """
+    The archive director directs the Maestro workflow to the specified archive
+    adapter and calls the necessary adapter functions to archive the workflow.
+    """
     def __init__(self, adapter, config_path):
-        archive_adapter_type = ADAPTERS[adapter]
-        self.archive_adapter = archive_adapter_type(config_path=config_path)
+        LOGGER.debug('Generating new Archive Director with adapter: {}\n and '
+            'config path: {}'.format(adapter, config_path))
+        self.adapter = adapter
+        self.archive_adapter_type = ADAPTERS[adapter]
+        self.archive_adapter = self.archive_adapter_type(config_path=config_path)
 
     def archive(self, spec_path):
         """
-        Takes a Maestro specification file path and archives it to CoRR.
+        Takes a Maestro specification file path and archives it.
 
         :param spec_path: The file path to the Maestro spec.
+        :raises ValueError: If the Director has no supported adapter in use.
         """
         LOGGER.info('Archiving spec: {}'.format(spec_path))
         LOGGER.debug('With adapter: {}'.format(self.archive_adapter._type()))
+
+        if self.adapter == 'corrhttp':
+            self.archive_corrhttp(spec_path=spec_path)
+        else:
+            # Shouldn't get here but this is for default.
+            msg = 'Unsupported archive adapter: <{}>'.format(str(self.adapter))
+            LOGGER.error(msg)
+            raise ValueError(msg)
+
+    def archive_corrhttp(self, spec_path):
+        """
+        Takes a Maestro specification file path and archives it to CoRR over
+        HTTP.
+
+        :param spec_path: The file path to the Maestro spec.
+        """
         LOGGER.debug('Generating CoRR spec.')
 
         # Grab spec name. Split on '.' to remove file extension.

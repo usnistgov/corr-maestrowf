@@ -17,6 +17,8 @@ LOGGER = logging.getLogger(__name__)
 LFORMAT = "%(asctime)s - %(name)s:%(funcName)s:%(lineno)s - " \
           "%(levelname)s - %(message)s"
 DEFAULT_ARCHIVE_CONFIG = 'configs/corrhttp-config.json'
+DEFAULT_LOGPATH = os.path.dirname(os.path.abspath(__file__))
+
 def setup_argparser():
     """
     Method for setting up the program's argument parser.
@@ -96,8 +98,11 @@ def main():
     """
     parser = setup_argparser()
     args = parser.parse_args()
-    default_log_path = os.path.dirname(os.path.abspath(__file__))
-    setup_logging(args, default_log_path, 'lulesh')
+    if args.logpath:
+        logpath = args.logpath
+    else:
+        logpath = DEFAULT_LOGPATH
+    setup_logging(args, logpath, utils.get_file_name(args.specification))
     # Grab absolute file path of config if config file is default
     if args.config == DEFAULT_ARCHIVE_CONFIG:
         config_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
