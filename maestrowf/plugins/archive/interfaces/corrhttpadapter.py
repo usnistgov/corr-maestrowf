@@ -67,7 +67,7 @@ class CorrHttpAdapter(HttpAdapter):
         if not project:
             msg = ('No project exists with the name: {}'\
                 ''.format(_content['name']))
-            LOGGER.exception(msg)
+            LOGGER.error(msg)
             raise ValueError(msg)
 
         # Update the project

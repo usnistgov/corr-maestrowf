@@ -80,4 +80,7 @@ class HttpAdapter(object):
                 raise ValueError(msg)
 
     def _type(self):
+        """
+        Return the type derived class of HttpAdapter.
+        """
         return self.__class__.__name__
